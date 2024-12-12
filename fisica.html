@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Interactiva de Cálculo de Energías</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.dark-mode {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        header.dark-mode {
+            background-color: #34495e;
+        }
+        .form-container, .menu-container, .calculation-container {
+            display: none;
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+        .form-container.dark-mode, .menu-container.dark-mode, .calculation-container.dark-mode {
+            background-color: #34495e;
+            color: white;
+        }
+        .login-container {
+            display: block;
+        }
+        input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccd1d9;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input.dark-mode {
+            background-color: #2c3e50;
+            color: white;
+            border: 1px solid #95a5a6;
+        }
+        button {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2c3e50;
+        }
+        .menu-container button {
+            width: auto;
+            display: block;
+            margin: 10px auto;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        .result.dark-mode {
+            color: #ecf0f1;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
+        }
+        footer.dark-mode {
+            color: #7f8c8d;
+        }
+        #toggle-mode {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #toggle-mode:hover {
+            background-color: #2c3e50;
+        }
+    </style>
+    <script>
+        let energiaSeleccionada = "";
+
+        // Función para alternar entre modo claro y oscuro
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.form-container, .menu-container, .calculation-container, footer').forEach(el => {
+                el.classList.toggle('dark-mode');
+            });
+            document.querySelectorAll('input').forEach(input => {
+                input.classList.toggle('dark-mode');
+            });
+            document.querySelectorAll('.result').forEach(result => {
+                result.classList.toggle('dark-mode');
+            });
+        }
+
+        function mostrarMenu() {
+            document.querySelector('.login-container').style.display = 'none';
+            document.querySelector('.menu-container').style.display = 'block';
+        }
+
+        function mostrarCalculo(tipo) {
+            energiaSeleccionada = tipo;
+            document.querySelector('.menu-container').style.display = 'none';
+            const containers = document.querySelectorAll('.calculation-container');
+            containers.forEach(container => container.style.display = 'none');
+            document.getElementById(`form_${tipo}`).style.display = 'block';
+        }
+
+        function calcularCinetica() {
+            const masa = parseFloat(document.getElementById('masa_cinetica').value);
+            const velocidad = parseFloat(document.getElementById('velocidad_cinetica').value);
+            if (!isNaN(masa) && !isNaN(velocidad)) {
+                const energia = 0.5 * masa * velocidad ** 2;
+                document.getElementById('resultado_cinetica').innerHTML = `
+                    <p>Paso 1: Fórmula de la energía cinética: <strong>E<sub>c</sub> = ½ m v²</strong></p>
+                    <p>Paso 2: Sustituir valores: <strong>E<sub>c</sub> = ½ (${masa}) (${velocidad}²)</strong></p>
+                    <p>Paso 3: Resultado: <strong>E<sub>c</sub> = ${energia.toFixed(2)} J</strong></p>
+                `;
+            } else {
+                document.getElementById('resultado_cinetica').innerHTML = 'Por favor, ingrese valores válidos.';
+            }
+        }
+
+        function calcularPotencial() {
+            const masa = parseFloat(document.getElementById('masa_potencial').value);
+            const altura = parseFloat(document.getElementById('altura_potencial').value);
+            const gravedad = parseFloat(document.getElementById('gravedad_potencial').value || 9.81);
+            if (!isNaN(masa) && !isNaN(altura)) {
+                const energia = masa * gravedad * altura;
+                document.getElementById('resultado_potencial').innerHTML = `
+                    <p>Paso 1: Fórmula de la energía potencial: <strong>E<sub>p</sub> = m g h</strong></p>
+                    <p>Paso 2: Sustituir valores: <strong>E<sub>p</sub> = (${masa}) (${gravedad}) (${altura})</strong></p>
+                    <p>Paso 3: Resultado: <strong>E<sub>p</sub> = ${energia.toFixed(2)} J</strong></p>
+                `;
+            } else {
+                document.getElementById('resultado_potencial').innerHTML = 'Por favor, ingrese valores válidos.';
+            }
+        }
+
+        function calcularMecanica() {
+            const masa = parseFloat(document.getElementById('masa_mecanica').value);
+            const velocidad = parseFloat(document.getElementById('velocidad_mecanica').value);
+            const altura = parseFloat(document.getElementById('altura_mecanica').value);
+            const gravedad = parseFloat(document.getElementById('gravedad_mecanica').value || 9.81);
+            if (!isNaN(masa) && !isNaN(velocidad) && !isNaN(altura)) {
+                const cinetica = 0.5 * masa * velocidad ** 2;
+                const potencial = masa * gravedad * altura;
+                const mecanica = cinetica + potencial;
+                document.getElementById('resultado_mecanica').innerHTML = `
+                    <p>Paso 1: Fórmula de la energía mecánica: <strong>E<sub>m</sub> = E<sub>c</sub> + E<sub>p</sub></strong></p>
+                    <p>Paso 2: Calcular energía cinética: <strong>E<sub>c</sub> = ½ (${masa}) (${velocidad}²) = ${cinetica.toFixed(2)} J</strong></p>
+                    <p>Paso 3: Calcular energía potencial: <strong>E<sub>p</sub> = (${masa}) (${gravedad}) (${altura}) = ${potencial.toFixed(2)} J</strong></p>
+                    <p>Paso 4: Sumar resultados: <strong>E<sub>m</sub> = ${cinetica.toFixed(2)} + ${potencial.toFixed(2)} = ${mecanica.toFixed(2)} J</strong></p>
+                `;
+            } else {
+                document.getElementById('resultado_mecanica').innerHTML = 'Por favor, ingrese valores válidos.';
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Plataforma Interactiva de Cálculo de Energías</h1>
+    </header>
+
+    <button id="toggle-mode" onclick="toggleDarkMode()">🌓</button>
+
+    <div class="login-container form-container">
+        <h3>Iniciar Sesión</h3>
+        <input type="text" placeholder="Usuario" required>
+        <input type="password" placeholder="Contraseña" required>
+        <button onclick="mostrarMenu()">Acceder</button>
+    </div>
+
+    <div class="menu-container form-container">
+        <h3>Seleccione el cálculo que desea realizar:</h3>
+        <button onclick="mostrarCalculo('cinetica')">Cálculo de Energía Cinética</button>
+        <button onclick="mostrarCalculo('potencial')">Cálculo de Energía Potencial Gravitatoria</button>
+        <button onclick="mostrarCalculo('mecanica')">Cálculo de Energía Mecánica</button>
+    </div>
+
+    <!-- Formulario de Energía Cinética -->
+    <div id="form_cinetica" class="calculation-container">
+        <h3>Cálculo de Energía Cinética</h3>
+        <p>La energía cinética es la energía asociada al movimiento de un cuerpo. Fórmula: <strong>E<sub>c</sub> = ½ m v²</strong></p>
+        <input id="masa_cinetica" type="number" placeholder="Masa (kg)">
+        <input id="velocidad_cinetica" type="number" placeholder="Velocidad (m/s)">
+        <button onclick="calcularCinetica()">Calcular</button>
+        <button onclick="mostrarMenu()">Volver al menú</button>
+        <div id="resultado_cinetica" class="result"></div>
+    </div>
+
+    <!-- Formulario de Energía Potencial -->
+    <div id="form_potencial" class="calculation-container">
+        <h3>Cálculo de Energía Potencial Gravitatoria</h3>
+        <p>La energía potencial es la energía que posee un objeto debido a su posición. Fórmula: <strong>E<sub>p</sub> = m g h</strong></p>
+        <input id="masa_potencial" type="number" placeholder="Masa (kg)">
+        <input id="altura_potencial" type="number" placeholder="Altura (m)">
+        <input id="gravedad_potencial" type="number" placeholder="Gravedad (m/s², opcional)">
+        <button onclick="calcularPotencial()">Calcular</button>
+        <button onclick="mostrarMenu()">Volver al menú</button>
+        <div id="resultado_potencial" class="result"></div>
+    </div>
+
+    <!-- Formulario de Energía Mecánica -->
+    <div id="form_mecanica" class="calculation-container">
+        <h3>Cálculo de Energía Mecánica</h3>
+        <p>La energía mecánica es la suma de la energía cinética y potencial. Fórmula: <strong>E<sub>m</sub> = E<sub>c</sub> + E<sub>p</sub></strong></p>
+        <input id="masa_mecanica" type="number" placeholder="Masa (kg)">
+        <input id="velocidad_mecanica" type="number" placeholder="Velocidad (m/s)">
+        <input id="altura_mecanica" type="number" placeholder="Altura (m)">
+        <input id="gravedad_mecanica" type="number" placeholder="Gravedad (m/s², opcional)">
+        <button onclick="calcularMecanica()">Calcular</button>
+        <button onclick="mostrarMenu()">Volver al menú</button>
+        <div id="resultado_mecanica" class="result"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Plataforma Interactiva de Cálculo de Energías. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
